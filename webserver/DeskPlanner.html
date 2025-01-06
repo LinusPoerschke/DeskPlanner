@@ -1,0 +1,57 @@
+<?php session_start(); ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeskPlanner</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome banner -->
+        <h1 class="welcome-banner">
+            Welcome to your personal <span class="highlight">DeskPlanner</span>
+        </h1>
+
+        <!-- Login section -->
+        <h2>Login</h2>
+        <form action="login.php" method="POST">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <button type="submit" name="action" value="login">Login</button>
+            <button type="submit" name="action" value="register">Register</button>
+        </form>
+
+        <!-- Placeholder for error or success messages -->
+        <p id="message"></p>
+    </div>
+
+    <script>
+        const errorMessages = {
+            1: "Username already exists.",
+            2: "Please fill out all fields.",
+            3: "Invalid login credentials."
+        };
+
+        const successMessages = {
+            1: "Registration successful. You can log in now."
+        };
+
+        const params = new URLSearchParams(window.location.search);
+        const error = params.get('error');
+        const success = params.get('success');
+        const messageElement = document.getElementById('message');
+
+        if (error && errorMessages[error]) {
+            messageElement.textContent = errorMessages[error];
+            messageElement.className = 'error';
+        } else if (success && successMessages[success]) {
+            messageElement.textContent = successMessages[success];
+            messageElement.className = 'success';
+        }
+    </script>
+</body>
+</html>

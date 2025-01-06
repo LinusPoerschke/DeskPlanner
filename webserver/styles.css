@@ -1,0 +1,80 @@
+/* General styles for the body */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Container styling */
+.container {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 320px; /* Fixed width for better alignment */
+    text-align: center;
+}
+
+/* Welcome banner styles */
+.welcome-banner {
+    font-size: 2rem; /* Larger font size */
+    color: #003366; /* Dark blue */
+    text-align: center;
+    margin-bottom: 2rem;
+    width: 100%; /* Full width */
+}
+
+.welcome-banner .highlight {
+    font-weight: bold; /* Bold DeskPlanner */
+    color: #00008B; /* Stronger blue */
+}
+
+/* Form styling */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Labels for inputs */
+label {
+    margin-bottom: 0.5rem;
+    text-align: left;
+}
+
+/* Input fields */
+input {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Buttons */
+button {
+    padding: 0.5rem;
+    border: none;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 0.5rem;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Error and success message styling */
+.error {
+    color: red;
+    margin-top: 1rem;
+}
+
+.success {
+    color: green;
+    margin-top: 1rem;
+}
