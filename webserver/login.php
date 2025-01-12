@@ -1,19 +1,25 @@
 <?php
 session_start();
 
-// File to store user data
-$file = 'users.txt';
+// Constants for the user file
+define('USER_FILE', __DIR__ . '/users.txt');
 
 // Save a new user to the file
-function saveUser($username, $password, $file) {
+function save_user($username, $password) {
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-    file_put_contents($file, "$username:$hashedPassword\n", FILE_APPEND);
+    file_put_contents(USER_FILE, "$username:$hashedPassword\n", FILE_APPEND);
+}
+
+// Load all users from the file
+function load_users() {
+    if (!file_exists(USER_FILE)) {
+        return [];
+    }
+    return file(USER_FILE, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 }
 
 // Check if a username already exists
-function userExists($username, $file) {
-    if (!file_exists($file)) return false;
-    $users = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+function does_user_exist($username, $users) {
     foreach ($users as $user) {
         list($storedUsername, ) = explode(':', $user);
         if ($storedUsername === $username) {
@@ -24,9 +30,7 @@ function userExists($username, $file) {
 }
 
 // Authenticate a user by checking username and password
-function authenticate($username, $password, $file) {
-    if (!file_exists($file)) return false;
-    $users = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+function authenticate_user($username, $password, $users) {
     foreach ($users as $user) {
         list($storedUsername, $storedPassword) = explode(':', $user);
         if ($storedUsername === $username && password_verify($password, $storedPassword)) {
@@ -38,46 +42,34 @@ function authenticate($username, $password, $file) {
 
 // Process POST requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username']);
+    $username = filter_var(trim($_POST['username']), FILTER_SANITIZE_STRING);
     $password = trim($_POST['password']);
     $action = $_POST['action'];
 
-    // Error and success messages (using codes)
-    $errorMessages = [
-        1 => "Username already exists.",
-        2 => "Please fill out all fields.",
-        3 => "Invalid login credentials."
-    ];
+    $users = load_users();
 
-    $successMessages = [
-        1 => "Registration successful."
-    ];
-
-    // Check for empty fields
     if (empty($username) || empty($password)) {
         header('Location: DeskPlanner.html?error=2');
         exit;
     }
 
     if ($action === 'register') {
-        // Check if the username exists
-        if (userExists($username, $file)) {
-            header('Location: DeskPlanner.html?error=1'); // Username exists
+        if (does_user_exist($username, $users)) {
+            header('Location: DeskPlanner.html?error=1');
         } else {
-            saveUser($username, $password, $file);
-            header('Location: DeskPlanner.html?success=1'); // Registration successful
+            save_user($username, $password);
+            header('Location: DeskPlanner.html?success=1');
         }
         exit;
     }
 
     if ($action === 'login') {
-        // Authenticate the user
-        if (authenticate($username, $password, $file)) {
-            $_SESSION['logged_in'] = true;
-            $_SESSION['username'] = $username;
-            header('Location: main.php'); // Redirect to main.php after successful login
+        if (authenticate_user($username, $password, $users)) {
+            session_regenerate_id(true);
+            $_SESSION['user'] = ['username' => $username, 'logged_in' => true];
+            header('Location: main.php');
         } else {
-            header('Location: DeskPlanner.html?error=3'); // Invalid credentials
+            header('Location: DeskPlanner.html?error=3');
         }
         exit;
     }

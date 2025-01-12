@@ -22,7 +22,7 @@ body {
 /* Welcome banner styles */
 .welcome-banner {
     font-size: 2rem; /* Larger font size */
-    color: #003366; /* Dark blue */
+    color: #00008B; /* Dark blue */
     text-align: center;
     margin-bottom: 2rem;
     width: 100%; /* Full width */
@@ -30,7 +30,7 @@ body {
 
 .welcome-banner .highlight {
     font-weight: bold; /* Bold DeskPlanner */
-    color: #00008B; /* Stronger blue */
+    color: #007bff; /* Stronger blue */
 }
 
 /* Form styling */
@@ -78,3 +78,11 @@ button:hover {
     color: green;
     margin-top: 1rem;
 }
+
+/* Info message styling */
+.info {
+    color: purple;
+    margin-top: 1rem;
+    font-weight: bold;
+}
+
