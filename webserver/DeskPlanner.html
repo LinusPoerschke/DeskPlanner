@@ -40,9 +40,16 @@
             1: "Registration successful. You can log in now."
         };
 
+        // Message for successful logout
+        const infoMessages = {
+            logout: "You have been successfully logged out. Please log in again."
+        };
+
+        // Get query parameters from the URL
         const params = new URLSearchParams(window.location.search);
         const error = params.get('error');
         const success = params.get('success');
+        const logout = params.get('logout')
         const messageElement = document.getElementById('message');
 
         if (error && errorMessages[error]) {
@@ -51,6 +58,9 @@
         } else if (success && successMessages[success]) {
             messageElement.textContent = successMessages[success];
             messageElement.className = 'success';
+        } else if (logout && infoMessages.logout) {
+            messageElement.textContent = infoMessages.logout;
+            messageElement.className = 'info';
         }
     </script>
 </body>
