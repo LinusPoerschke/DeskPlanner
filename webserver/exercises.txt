@@ -1,0 +1,7 @@
+[
+    {
+        "name": "Programmieren 1",
+        "description": "Abgabe der Klausurersatzleistung",
+        "deadline": "2025-01-17"
+    }
+]
