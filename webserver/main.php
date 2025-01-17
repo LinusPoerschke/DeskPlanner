@@ -77,9 +77,15 @@
     }
 
     h1 {
-      font-size: 36px;
+      font-size: 32px;
       color: navy;
       margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 32px;
+      color: navy;
+      margin-bottom: 60px;
     }
 
     p {
@@ -137,7 +143,7 @@
       color: darkred;
     }
 
-    /* Grid fÃ¼r Wochentage */
+    /* Grid für Wochentage */
     .weekdays-container {
       display: flex;
       justify-content: space-around;
@@ -158,7 +164,7 @@
 
     .date {
       font-size: 16px;
-      color: #666; /* Optional, um das Datum etwas abzudÃ¤mpfen */
+      color: #666; /* Optional, um das Datum etwas abzudämpfen */
     }
 
     /* logout */   
@@ -170,7 +176,7 @@
     .logout-button {
       padding: 10px 20px;
       font-size: 16px;
-      background-color: #ff4d4d; /* AuffÃ¤llige Farbe */
+      background-color: #ff4d4d; /* Auffällige Farbe */
       color: white;
       border: none;
       border-radius: 5px;
@@ -182,28 +188,72 @@
       background-color: #e60000; /* Etwas dunkler bei Hover */
     }
 
-    /* timer, stopwatch */
-    .timercontainer {
+    .status-container {
+      padding: 20px 40px;
       display: flex;
-      gap: 20px;
-      margin-top: 20px;
       justify-content: space-between;
+      align-items: flex-start;
+      gap: 30px; /* Abstand zwischen links und rechts */
+      margin-top: 40px;
     }
 
-    .timer, .stopwatch {
-      flex: 1;
-      padding: 15px;
-      border: 1px solid #ccc;
+    .status-left, .status-right {
+      display: flex;
+      flex-direction: column; /* Elemente untereinander anordnen */
+      gap: 15px; /* Abstand zwischen den Elementen */
+    }
+
+    .status-left {
+      flex: 1; /* Links nimmt den verfügbaren Platz ein */
+    }
+
+    .status-right {
+      flex: 1; /* Rechts nimmt den verfügbaren Platz ein */
+    }
+
+    .temperature, .humidity, .led, .socket, .timer, .stopwatch {
+      background-color: #f4f4f4;
+      padding: 6px;
       border-radius: 8px;
-      background-color: #f9f9f9;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       text-align: center;
     }
 
-    .timer h2, .stopwatch h2 {
-      margin-bottom: 10px;
+    .humidity-point {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      margin-top: 10px; /* Abstand zwischen Text und Punkt */
+      margin-left: auto; /* Horizontale Zentrierung */
+      margin-right: auto; /* Horizontale Zentrierung */
     }
 
-    
+    /* Container für den Timer und die Stoppuhr */
+    .timercontainer {
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between; /* Abstand zwischen den beiden Containern */
+      gap: 30px;
+      margin-top: -2px; /* Etwas Abstand nach oben */
+    }
+
+    .timer, .stopwatch {
+      background-color: #f4f4f4;
+      padding: 6px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 50%; /* Breite der Container anpassen */
+    }
+
+    .timer h2, .stopwatch h2 {
+      margin-top: 12px;
+    }
+
+    .timer input, .stopwatch p {
+      margin-top: 4px;
+    }
+
     /* Popup style */
     .popup {
       display: none;
@@ -291,50 +341,137 @@
       return 'Keine Daten verf&uuml;gbar'; // Fallback, falls Datei fehlt
     }
 
-    $current_page = isset($_GET['page']) ? $_GET['page'] : 'start';
+    // Funktion zum Laden des LED-Status aus LED.txt
+    function getLED() {
+      $filePath = __DIR__ . '/LED.txt';
+      if (file_exists($filePath)) {
+          $data = file_get_contents($filePath);
+          $ledStatus = trim($data); 
+
+          // Überprüfen, ob der Wert in der Datei '1' ist
+          if ($ledStatus === '1') {
+              return 'Eingeschaltet'; // Ausgabe wenn '1' in der Datei steht
+          } elseif ($ledStatus === '0') {
+              return 'Ausgeschaltet'; // Ausgabe wenn '0' in der Datei steht
+          }
+      }
+      return 'Keine Daten verf&uuml;gbar'; // Fallback, falls Datei fehlt oder Wert nicht erkannt wird
+    }
+
+    // Funktion zum Laden des Steckdosen Status aus socket.txt
+    function getSocket() {
+      $filePath = __DIR__ . '/socket.txt';
+      if (file_exists($filePath)) {
+          $data = file_get_contents($filePath);
+          $socketStatus = trim($data); 
+
+          // Überprüfen des Wertes in der Datei
+          if ($socketStatus === '1') {
+              return 'Eingeschaltet';
+          } elseif ($socketStatus === '0') {
+              return 'Ausgeschaltet';
+          }
+      }
+      return 'Keine Daten verf&uuml;gbar'; // Fallback, falls Datei fehlt
+    }
+
+    // Prüfen, ob der Button geklickt wurde und den Status der Steckdose ändern
+    if (isset($_POST['turn_on'])) {
+        $result = setSocket('1'); // Einschalten
+        if ($result) {
+            echo "<p>Steckdose wurde eingeschaltet.</p>";
+        } else {
+            echo "<p>Fehler beim Einschalten der Steckdose.</p>";
+        }
+    } elseif (isset($_POST['turn_off'])) {
+        $result = setSocket('0'); // Ausschalten
+        if ($result) {
+            echo "<p>Steckdose wurde ausgeschaltet.</p>";
+        } else {
+            echo "<p>Fehler beim Ausschalten der Steckdose.</p>";
+        }
+    }
+
+    function setSocket($status) {
+        $filePath = __DIR__ . '/socket.txt';
+        if ($status == '1' || $status == '0') {
+            $writeResult = file_put_contents($filePath, $status);
+            if ($writeResult === false) {
+                return false; // Fehler beim Schreiben
+            }
+            return true; // Erfolgreiches Schreiben
+        }
+        return false;
+    }
+
+     // Zuerst die Werte abrufen
+     $temperature = getTemperature();
+     $humidity = getHumidity();
+     $led = getLED();
+     $socket = getSocket();
+     $current_page = isset($_GET['page']) ? $_GET['page'] : 'start';
+     $pointColor = ($humidity < 50) ? 'green' : 'red';
 
     if ($current_page == 'start') {
         echo "<h1>Willkommen!</h1>";
-        
-        // Temperaturanzeige
-        $temperature = getTemperature();
-        echo "<div class='temperature'>
-                <h2>Aktuelle Temperatur:</h2>
-                <p><strong>{$temperature}&deg;C</strong></p>
-              </div>";
-
-        // Luftfeuchtigkeitsanzeige
-        $humidity = getHumidity();
-        echo "<div class='humidity'>
-                <h2>Aktuelle Luftfeuchtigkeit:</h2>
-                <p><strong>{$humidity}%</strong></p>
-              </div>";
-
-        // Timer und Stoppuhr
-        echo "
-        <div class='timercontainer'>
-            <div class='timer'>
-                <h2>Timer</h2>
-                <input id='timer-input' type='number' min='1' max='180' placeholder='Minuten einstellen'>
-                <p id='timer-display'>00:00</p>
-                <button onclick='startTimer()'>Start</button>
+  ?>
+   <div class="status-container">
+        <!-- Linke Seite: Temperatur & Luftfeuchtigkeit -->
+        <div class="status-left">
+            <div class="temperature">
+                <h2>Temperatur:</h2>
+                <p><strong><?= $temperature; ?>&deg;C</strong></p>
             </div>
-
-            <div class='stopwatch'>
-                <h2>Stoppuhr</h2>
-                <p id='stopwatch-display'>00:00:00</p>
-                <button onclick='startStopwatch()'>Start</button>
-                <button onclick='stopStopwatch()'>Stop</button>
-                <button onclick='resetStopwatch()'>L&ouml;schen</button>
+            <div class="humidity">
+                <h2>Luftfeuchtigkeit:</h2>
+                <p><strong><?= $humidity; ?>%</strong></p>
+                <div class="humidity-point" style="background-color: <?= $pointColor; ?>;"></div>
             </div>
-        </div>";
+        </div>
+
+        <!-- Rechte Seite: LED & Steckdose -->
+        <div class="status-right">
+            <div class="led">
+                <h2>Status der LED:</h2>
+                <p><strong><?= $led; ?></strong></p>
+                
+            </div>
+            <div class="socket">
+                <h2>Status der Steckdose:</h2>
+                <p><strong><?= $socket; ?></strong></p>
+                <form method="POST">
+                    <button type="submit" name="turn_on">Einschalten</button>
+                    <button type="submit" name="turn_off">Ausschalten</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class='timercontainer'>
+        <div class='timer'>
+           <h2>Timer</h2>
+           <input id='timer-input' type='number' min='1' max='180' placeholder='Minuten einstellen'>
+           <p id='timer-display'>00:00</p>
+           <button onclick='startTimer()'>Start</button>
+        </div>
+
+         <div class='stopwatch'>
+           <h2>Stoppuhr</h2>
+           <p id='stopwatch-display'>00:00:00</p>
+           <button onclick='startStopwatch()'>Start</button>
+           <button onclick='stopStopwatch()'>Stop</button>
+           <button onclick='resetStopwatch()'>L&ouml;schen</button>
+        </div>
+    </div>
+    
+    <?php
     }
 
     // Berechne das Datum des Montags der aktuellen Woche
     function getMondayOfCurrentWeek() {
         $currentDate = new DateTime(); // Aktuelles Datum
         $dayOfWeek = $currentDate->format('N'); // Tag der Woche (1 = Montag, 7 = Sonntag)
-        $currentDate->modify('-' . ($dayOfWeek - 1) . ' days'); // Gehe zurÃ¼ck auf den Montag
+        $currentDate->modify('-' . ($dayOfWeek - 1) . ' days'); // Gehe zurück auf den Montag
         return $currentDate;
     }
 
@@ -345,19 +482,19 @@
         return $currentDate;
     }
 
-    // Funktion zum PrÃ¼fen, ob das Datum in der aktuellen Woche liegt
+    // Funktion zum Prüfen, ob das Datum in der aktuellen Woche liegt
     function isInCurrentWeek($date) {
         $monday = getMondayOfCurrentWeek();
         $sunday = getSundayOfCurrentWeek();
         return $date >= $monday && $date <= $sunday;
     }
 
-    // Erstelle eine Liste der Wochentage von Montag bis Sonntag fÃ¼r die aktuelle Woche
+    // Erstelle eine Liste der Wochentage von Montag bis Sonntag für die aktuelle Woche
     $monday = getMondayOfCurrentWeek();
     $weekDays = [];
     
     for ($i = 0; $i < 7; $i++) {
-        // Jeden Tag einzeln erstellen, um das $monday-Objekt nicht zu verÃ¤ndern
+        // Jeden Tag einzeln erstellen, um das $monday-Objekt nicht zu verändern
         $day = clone $monday;
         $day->modify('+' . $i . ' days');
         $weekDays[] = $day;
@@ -394,7 +531,7 @@
     foreach ($exercises as $exercise) {
         $taskDate = new DateTime($exercise['deadline']);
         
-        // PrÃ¼fen, ob die Aufgabe in der aktuellen Woche liegt
+        // Prüfen, ob die Aufgabe in der aktuellen Woche liegt
         if (isInCurrentWeek($taskDate)) {
             // Aufgabe dem richtigen Wochentag zuordnen
             foreach ($weekDays as $weekday) {
@@ -406,19 +543,19 @@
         }
     }
 
-    // ÃœberprÃ¼fen, ob eine Aufgabe gelÃ¶scht werden soll
+    // Überprüfen, ob eine Aufgabe gelöscht werden soll
     if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         $deleteIndex = (int)$_GET['delete'];
-        // Vergewissern, dass der Index gÃ¼ltig ist und innerhalb des Arrays existiert
+        // Vergewissern, dass der Index gültig ist und innerhalb des Arrays existiert
         if (isset($exercises[$deleteIndex])) {
-            // Aufgabe lÃ¶schen
+            // Aufgabe löschen
             array_splice($exercises, $deleteIndex, 1);
-            // Aufgaben nach dem LÃ¶schen in die Datei speichern
+            // Aufgaben nach dem Löschen in die Datei speichern
             file_put_contents($filePath, json_encode($exercises, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         }
     }
 
-    // Neue Aufgabe hinzufÃ¼gen
+    // Neue Aufgabe hinzufügen
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name']) && isset($_POST['description']) && isset($_POST['deadline'])) {
         // Neue Aufgabe
         $newExercise = [
@@ -426,7 +563,7 @@
             'description' => htmlspecialchars(substr($_POST['description'], 0, 150), ENT_QUOTES, 'UTF-8'), // Begrenzung auf 150 Zeichen
             'deadline' => htmlspecialchars($_POST['deadline'], ENT_QUOTES, 'UTF-8'),
         ];
-        // Aufgabe zum Array hinzufÃ¼gen
+        // Aufgabe zum Array hinzufügen
         array_push($exercises, $newExercise);
 
         // Aufgaben in die Datei speichern
@@ -496,7 +633,7 @@
         }
     }
 
-    // Formular zum HinzufÃ¼gen einer neuen Aufgabe
+    // Formular zum Hinzufügen einer neuen Aufgabe
     if ($current_page == 'exercise') {
         echo "
         <div class='form-container'>
@@ -512,6 +649,7 @@
     ?>
   </div>
 
+ 
   <!-- Einbinden des externen JavaScripts -->
   <script src="script.js"></script>
 
@@ -570,28 +708,31 @@
 
     // Timer-Logik
     let timerInterval;
+    let remainingTime;
 
     function startTimer() {
-        const input = document.getElementById('timer-input');
-        let time = parseInt(input.value) * 60;
-
-        if (isNaN(time) || time <= 0 || time > 180 * 60) {
-            alert('Bitte eine g&uuml;ltige Zeit (1-180 Minuten) eingeben.');
-            return;
+        const timerInput = document.getElementById('timer-input').value;
+        if (timerInput && timerInput > 0) {
+            remainingTime = timerInput * 60; // Minuten in Sekunden umwandeln
+            document.getElementById('timer-display').innerText = formatTime(remainingTime);
+            timerInterval = setInterval(updateTimer, 1000);
         }
+    }
 
-        clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            if (time > 0) {
-                time--;
-                const minutes = Math.floor(time / 60).toString().padStart(2, '0');
-                const seconds = (time % 60).toString().padStart(2, '0');
-                document.getElementById('timer-display').innerText = `${minutes}:${seconds}`;
-            } else {
-                clearInterval(timerInterval);
-                alert('Timer abgelaufen!');
-            }
-        }, 1000);
+    function updateTimer() {
+        if (remainingTime > 0) {
+            remainingTime--;
+            document.getElementById('timer-display').innerText = formatTime(remainingTime);
+        } else {
+            clearInterval(timerInterval);
+            alert("Die Zeit ist abgelaufen!");
+        }
+    }
+
+    function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const sec = seconds % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
     }
   </script>
 </body>
