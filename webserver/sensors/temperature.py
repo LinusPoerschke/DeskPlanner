@@ -1,17 +1,16 @@
-# -*- coding: utf-8 -*-
 import Adafruit_DHT
 import time
 
 DHT_SENSOR = Adafruit_DHT.DHT22
 DHT_PIN = 2
-FILE_PATH = "/home/pi/DeskPlanner/webserver/sensors/sensorData.txt"
+FILE_PATH = "/home/pi/DeskPlanner/webserver/sensorData.txt"
 
 def log_sensor_data():
-    with open(FILE_PATH, "a") as file:
+    with open(FILE_PATH, "w") as file:  # "w"
         humidity, temperature = Adafruit_DHT.read_retry(DHT_SENSOR, DHT_PIN)
         if humidity is not None and temperature is not None:
-            data = f"{time.strftime('%Y-%m-%d %H:%M:%S')}, Temp: {temperature:.2f}\u00b0C, Humidity: {humidity:.2f}%\n"
-            print(data.strip())
+            data = f"{temperature:.1f},{int(humidity)}\n"
+            print(data.strip())  # Optional: Konsolenausgabe
             file.write(data)
             file.flush()
         else:
