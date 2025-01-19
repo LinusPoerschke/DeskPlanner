@@ -1,16 +1,15 @@
 <?php
 session_start();
 
-// Constants for the user file
 define('USER_FILE', __DIR__ . '/users.txt');
 
-// Save a new user to the file
+// Save user
 function save_user($username, $password) {
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
     file_put_contents(USER_FILE, "$username:$hashedPassword\n", FILE_APPEND);
 }
 
-// Load all users from the file
+// Load users
 function load_users() {
     if (!file_exists(USER_FILE)) {
         return [];
@@ -18,7 +17,7 @@ function load_users() {
     return file(USER_FILE, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 }
 
-// Check if a username already exists
+// Does user exist?
 function does_user_exist($username, $users) {
     foreach ($users as $user) {
         list($storedUsername, ) = explode(':', $user);
@@ -29,7 +28,7 @@ function does_user_exist($username, $users) {
     return false;
 }
 
-// Authenticate a user by checking username and password
+// Authenticate user
 function authenticate_user($username, $password, $users) {
     foreach ($users as $user) {
         list($storedUsername, $storedPassword) = explode(':', $user);
@@ -40,7 +39,7 @@ function authenticate_user($username, $password, $users) {
     return false;
 }
 
-// Process POST requests
+// Handle POST requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = filter_var(trim($_POST['username']), FILTER_SANITIZE_STRING);
     $password = trim($_POST['password']);
@@ -66,7 +65,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'login') {
         if (authenticate_user($username, $password, $users)) {
             session_regenerate_id(true);
-            $_SESSION['user'] = ['username' => $username, 'logged_in' => true];
+
+            // Initialize user-specific files
+            $baseDir = __DIR__ . "/user_data/{$username}";
+            if (!is_dir($baseDir)) {
+                mkdir($baseDir, 0755, true);
+            }
+
+            $exercisesFile = $baseDir . "/exercises.json";
+            $sensorDataFile = $baseDir . "/sensorData.json";
+
+            if (!file_exists($exercisesFile)) {
+                file_put_contents($exercisesFile, json_encode([]));
+            }
+            if (!file_exists($sensorDataFile)) {
+                $defaultSensorData = [
+                    'temperature' => null,
+                    'humidity' => null,
+                    'led' => '0',
+                    'socket' => '0'
+                ];
+                file_put_contents($sensorDataFile, json_encode($defaultSensorData));
+            }
+
+            $_SESSION['user'] = $username;
+            $_SESSION['exercises_file'] = $exercisesFile;
+            $_SESSION['sensor_data_file'] = $sensorDataFile;
+
             header('Location: main.php');
         } else {
             header('Location: DeskPlanner.html?error=3');
@@ -74,3 +99,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
+?>
