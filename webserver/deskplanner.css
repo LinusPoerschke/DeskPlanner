@@ -1,0 +1,270 @@
+/* deskplanner.css */
+
+/* Basic page and font resets */
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Background image covers entire screen */
+.background-image {
+    height: 100vh;
+    width: 100%;
+    object-fit: cover;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    filter: brightness(0.9);
+}
+
+/* Main top container with navigation */
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    margin-top: 30px;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+}
+
+.menu {
+    margin-left: 16px;
+}
+
+.menu-link {
+    color: white;
+    text-decoration: none;
+    margin-left: 16px;
+}
+
+.menu-link:hover {
+    text-decoration: underline;
+}
+
+.active {
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+/* Logo size */
+.logo {
+    height: 40px;
+    width: 40px;
+}
+
+/* The main content area with white box background */
+.page-content {
+    position: absolute;
+    top: 100px;
+    left: 50px;
+    right: 50px;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Headings */
+h1 {
+    font-size: 32px;
+    color: navy;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 32px;
+    color: navy;
+    margin-bottom: 60px;
+}
+
+/* Paragraph text */
+p {
+    font-size: 18px;
+    line-height: 1.5;
+    color: #333;
+}
+
+/* Forms for adding tasks, etc. */
+.form-container input {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.form-container button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: navy;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.form-container button:hover {
+    background-color: darkblue;
+}
+
+/* Task boxes */
+.task {
+    background-color: #f4f4f4;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.task strong {
+    color: navy;
+}
+
+.delete-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: red;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.delete-button:hover {
+    color: darkred;
+}
+
+/* If you have a "week" layout with weekdays container */
+.weekdays-container {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.weekday-container {
+    width: 18%;
+    padding: 10px;
+    text-align: center;
+}
+
+.weekday {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.date {
+    font-size: 16px;
+    color: #666;
+}
+
+/* Status container for temperature/humidity/LED/socket if you want a grid */
+.status-container {
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.status-left,
+.status-right {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.status-left {
+    flex: 1;
+}
+
+.status-right {
+    flex: 1;
+}
+
+.temperature,
+.humidity,
+.led,
+.socket {
+    background-color: #f4f4f4;
+    padding: 6px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.humidity-point {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Timer and stopwatch containers */
+.timercontainer {
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    margin-top: -2px;
+}
+
+.timer,
+.stopwatch {
+    background-color: #f4f4f4;
+    padding: 6px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+    width: 50%;
+}
+
+.timer h2,
+.stopwatch h2 {
+    margin-top: 12px;
+}
+
+.timer input,
+.stopwatch p {
+    margin-top: 4px;
+}
+
+/* Popup example if needed */
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: white;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 10;
+}
+
+.popup button {
+    margin: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.popup .cancel-btn {
+    background-color: lightgray;
+}
+
+.popup .confirm-btn {
+    background-color: red;
+    color: white;
+}

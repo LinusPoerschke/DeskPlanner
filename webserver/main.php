@@ -1,16 +1,3 @@
-<?php
-session_start();
-
-if (!isset($_SESSION['user']) || !isset($_SESSION['exercises_file']) || !isset($_SESSION['sensor_data_file'])) {
-    header('Location: DeskPlanner.html?error=session_expired');
-    exit;
-}
-
-// Benutzerspezifische Dateien laden
-$exercisesFile = $_SESSION['exercises_file'];
-$exercises = file_exists($exercisesFile) ? json_decode(file_get_contents($exercisesFile), true) : [];
-?>
-
 <!DOCTYPE html>
 <html lang="de">
 
@@ -321,8 +308,7 @@ $exercises = file_exists($exercisesFile) ? json_decode(file_get_contents($exerci
       <button type="submit" class="logout-button">Logout</button>
     </form>
   </div>
-
-  <div class="page-content">
+   <div class="page-content">
     <?php
     header('Content-Type: text/html; charset=UTF-8');
 
@@ -430,27 +416,31 @@ $exercises = file_exists($exercisesFile) ? json_decode(file_get_contents($exerci
     if ($current_page == 'start') {
         echo "<h1>Willkommen!</h1>";
   ?>
-   <div class="status-container">
-        <!-- Linke Seite: Temperatur & Luftfeuchtigkeit -->
-        <div class="status-left">
-            <div class="temperature">
-                <h2>Temperatur:</h2>
-                <p><strong><?= $temperature; ?>&deg;C</strong></p>
-            </div>
-            <div class="humidity">
-                <h2>Luftfeuchtigkeit:</h2>
-                <p><strong><?= $humidity; ?>%</strong></p>
-                <div class="humidity-point" style="background-color: <?= $pointColor; ?>;"></div>
-            </div>
-        </div>
+  
+  <div class="status-container">
+  <div class="status-left">
+    <div class="temperature">
+      <h2>Temperatur:</h2>
+      <p><strong id="tempValue"></strong>&deg;C</p>
+    </div>
+
+    <div class="humidity">
+      <h2>Luftfeuchtigkeit:</h2>
+      <p><strong id="humValue"></strong>%</p>
+      <div class="humidity-point" id="humidityDot"></div>
+    </div>
+  </div> 
 
         <!-- Rechte Seite: LED & Steckdose -->
         <div class="status-right">
-            <div class="led">
-                <h2>Status der LED:</h2>
-                <p><strong><?= $led; ?></strong></p>
-                
-            </div>
+        <div class="led">
+    <h2>Status der LED:</h2>
+    <form method="POST">
+        <button type="submit" name="led_on">LED einschalten</button>
+        <button type="submit" name="led_off">LED ausschalten</button>
+    </form>
+</div>
+
             <div class="socket">
                 <h2>Status der Steckdose:</h2>
                 <p><strong><?= $socket; ?></strong></p>
@@ -481,7 +471,18 @@ $exercises = file_exists($exercisesFile) ? json_decode(file_get_contents($exerci
     
     <?php
     }
-
+    if (isset($_POST['led_on'])) {
+      // LED einschalten
+      $pythonScriptPath = __DIR__ . "/sensors/LED.py";
+      $output = shell_exec("/usr/bin/python3 " . escapeshellarg($pythonScriptPath) . " 1 2>&1");
+      echo "<p>LED wurde eingeschaltet. Shell-Ausgabe: $output</p>";
+  } elseif (isset($_POST['led_off'])) {
+      // LED ausschalten
+      $pythonScriptPath = __DIR__ . "/sensors/LED.py";
+      $output = shell_exec("/usr/bin/python3 " . escapeshellarg($pythonScriptPath) . " 0 2>&1");
+      echo "<p>LED wurde ausgeschaltet. Shell-Ausgabe: $output</p>";
+  }
+  
     // Berechne das Datum des Montags der aktuellen Woche
     function getMondayOfCurrentWeek() {
         $currentDate = new DateTime(); // Aktuelles Datum
@@ -528,12 +529,11 @@ $exercises = file_exists($exercisesFile) ? json_decode(file_get_contents($exerci
     ];
 
     // Aufgaben aus Datei laden
-    $filePath = $_SESSION['exercises_file'];
-    $exercisesFile = $_SESSION['exercises_file'];
+    $filePath = __DIR__ . '/exercises.txt';
     $exercises = [];
 
     // Aufgaben aus der Datei lesen, falls sie existiert
-    if (file_exists($_SESSION['exercises_file'])) {
+    if (file_exists($filePath)) {
         $text = file_get_contents($filePath);
         $decoded = json_decode($text, true);
         if ($decoded === null && json_last_error() !== JSON_ERROR_NONE) {
@@ -559,16 +559,17 @@ $exercises = file_exists($exercisesFile) ? json_decode(file_get_contents($exerci
         }
     }
 
-    if (isset($_POST['delete'])) {
-        $deleteIndex = $_POST['delete']; // Index der zu löschenden Aufgabe
+    // �berpr�fen, ob eine Aufgabe gel�scht werden soll
+    if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
+        $deleteIndex = (int)$_GET['delete'];
+        // Vergewissern, dass der Index g�ltig ist und innerhalb des Arrays existiert
         if (isset($exercises[$deleteIndex])) {
+            // Aufgabe l�schen
             array_splice($exercises, $deleteIndex, 1);
-            
-            // Nach dem Löschen Datei aktualisieren
-            file_put_contents($exercisesFile, json_encode($exercises, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            // Aufgaben nach dem L�schen in die Datei speichern
+            file_put_contents($filePath, json_encode($exercises, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         }
     }
-    
 
     // Neue Aufgabe hinzuf�gen
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name']) && isset($_POST['description']) && isset($_POST['deadline'])) {
@@ -749,6 +750,44 @@ $exercises = file_exists($exercisesFile) ? json_decode(file_get_contents($exerci
         const sec = seconds % 60;
         return `${String(minutes).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+    // Eine Funktion, die sensorData.php abfragt
+    async function fetchSensorData() {
+        try {
+            const response = await fetch('sensorData.php');
+            const data = await response.json();
+
+            if (data.error) {
+                console.error('Fehler:', data.error);
+                return;
+            }
+
+            // Falls alles ok: Daten entnehmen
+            const temperature = data.temperature;
+            const humidity = data.humidity;
+
+            // DOM aktualisieren, z.B.:
+            document.getElementById('tempValue').textContent = temperature.toFixed(1);
+            document.getElementById('humValue').textContent = humidity;
+
+            // Beispiel: Farbe des Feuchtigkeitspunktes setzen
+            const humidityDot = document.getElementById('humidityDot');
+            if (humidityDot) {
+                humidityDot.style.backgroundColor = (humidity < 50) ? 'green' : 'red';
+            }
+
+        } catch (error) {
+            console.error('AJAX Fehler:', error);
+        }
+    }
+
+    // Einmal sofort laden:
+    fetchSensorData();
+
+    // Dann jede Minute neu laden (Intervall in ms: 60000 = 60 sek)
+    setInterval(fetchSensorData, 10000);
+});
   </script>
 </body>
 
