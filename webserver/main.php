@@ -143,7 +143,7 @@
       color: darkred;
     }
 
-    /* Grid für Wochentage */
+    /* Grid fï¿½r Wochentage */
     .weekdays-container {
       display: flex;
       justify-content: space-around;
@@ -164,7 +164,7 @@
 
     .date {
       font-size: 16px;
-      color: #666; /* Optional, um das Datum etwas abzudämpfen */
+      color: #666; /* Optional, um das Datum etwas abzudï¿½mpfen */
     }
 
     /* logout */   
@@ -176,7 +176,7 @@
     .logout-button {
       padding: 10px 20px;
       font-size: 16px;
-      background-color: #ff4d4d; /* Auffällige Farbe */
+      background-color: #ff4d4d; /* Auffï¿½llige Farbe */
       color: white;
       border: none;
       border-radius: 5px;
@@ -204,11 +204,11 @@
     }
 
     .status-left {
-      flex: 1; /* Links nimmt den verfügbaren Platz ein */
+      flex: 1; /* Links nimmt den verfï¿½gbaren Platz ein */
     }
 
     .status-right {
-      flex: 1; /* Rechts nimmt den verfügbaren Platz ein */
+      flex: 1; /* Rechts nimmt den verfï¿½gbaren Platz ein */
     }
 
     .temperature, .humidity, .led, .socket, .timer, .stopwatch {
@@ -228,7 +228,7 @@
       margin-right: auto; /* Horizontale Zentrierung */
     }
 
-    /* Container für den Timer und die Stoppuhr */
+    /* Container fï¿½r den Timer und die Stoppuhr */
     .timercontainer {
       padding: 20px 40px;
       display: flex;
@@ -348,7 +348,7 @@
           $data = file_get_contents($filePath);
           $ledStatus = trim($data); 
 
-          // Überprüfen, ob der Wert in der Datei '1' ist
+          // ï¿½berprï¿½fen, ob der Wert in der Datei '1' ist
           if ($ledStatus === '1') {
               return 'Eingeschaltet'; // Ausgabe wenn '1' in der Datei steht
           } elseif ($ledStatus === '0') {
@@ -365,7 +365,7 @@
           $data = file_get_contents($filePath);
           $socketStatus = trim($data); 
 
-          // Überprüfen des Wertes in der Datei
+          // ï¿½berprï¿½fen des Wertes in der Datei
           if ($socketStatus === '1') {
               return 'Eingeschaltet';
           } elseif ($socketStatus === '0') {
@@ -375,22 +375,24 @@
       return 'Keine Daten verf&uuml;gbar'; // Fallback, falls Datei fehlt
     }
 
-    // Prüfen, ob der Button geklickt wurde und den Status der Steckdose ändern
+
+
     if (isset($_POST['turn_on'])) {
-        $result = setSocket('1'); // Einschalten
-        if ($result) {
-            echo "<p>Steckdose wurde eingeschaltet.</p>";
-        } else {
-            echo "<p>Fehler beim Einschalten der Steckdose.</p>";
-        }
-    } elseif (isset($_POST['turn_off'])) {
-        $result = setSocket('0'); // Ausschalten
-        if ($result) {
-            echo "<p>Steckdose wurde ausgeschaltet.</p>";
-        } else {
-            echo "<p>Fehler beim Ausschalten der Steckdose.</p>";
-        }
-    }
+      // Schalte Steckdose ein
+      // __DIR__ = /home/pi/DeskPlanner/webserver
+      $pythonScriptPath = __DIR__ . "/sensors/socket.py";
+      // shell_exec ruft das Python-Skript mit Parameter "1" auf
+      // 2>&1 leitet Fehlermeldungen ebenfalls in die Ausgabe um, 
+      // damit du sie ggf. sehen kannst
+      $output = shell_exec("/usr/bin/python3 " . escapeshellarg($pythonScriptPath) . " 1 2>&1");
+      echo "<p>Steckdose wurde eingeschaltet. </p>";
+  } elseif (isset($_POST['turn_off'])) {
+      // Schalte Steckdose aus
+      $pythonScriptPath = __DIR__ . "/sensors/socket.py";
+      $output = shell_exec("/usr/bin/python3 " . escapeshellarg($pythonScriptPath) . " 0 2>&1");
+      echo "<p>Steckdose wurde ausgeschaltet. </p>";
+  }
+  
 
     function setSocket($status) {
         $filePath = __DIR__ . '/socket.txt';
@@ -471,7 +473,7 @@
     function getMondayOfCurrentWeek() {
         $currentDate = new DateTime(); // Aktuelles Datum
         $dayOfWeek = $currentDate->format('N'); // Tag der Woche (1 = Montag, 7 = Sonntag)
-        $currentDate->modify('-' . ($dayOfWeek - 1) . ' days'); // Gehe zurück auf den Montag
+        $currentDate->modify('-' . ($dayOfWeek - 1) . ' days'); // Gehe zurï¿½ck auf den Montag
         return $currentDate;
     }
 
@@ -482,19 +484,19 @@
         return $currentDate;
     }
 
-    // Funktion zum Prüfen, ob das Datum in der aktuellen Woche liegt
+    // Funktion zum Prï¿½fen, ob das Datum in der aktuellen Woche liegt
     function isInCurrentWeek($date) {
         $monday = getMondayOfCurrentWeek();
         $sunday = getSundayOfCurrentWeek();
         return $date >= $monday && $date <= $sunday;
     }
 
-    // Erstelle eine Liste der Wochentage von Montag bis Sonntag für die aktuelle Woche
+    // Erstelle eine Liste der Wochentage von Montag bis Sonntag fï¿½r die aktuelle Woche
     $monday = getMondayOfCurrentWeek();
     $weekDays = [];
     
     for ($i = 0; $i < 7; $i++) {
-        // Jeden Tag einzeln erstellen, um das $monday-Objekt nicht zu verändern
+        // Jeden Tag einzeln erstellen, um das $monday-Objekt nicht zu verï¿½ndern
         $day = clone $monday;
         $day->modify('+' . $i . ' days');
         $weekDays[] = $day;
@@ -531,7 +533,7 @@
     foreach ($exercises as $exercise) {
         $taskDate = new DateTime($exercise['deadline']);
         
-        // Prüfen, ob die Aufgabe in der aktuellen Woche liegt
+        // Prï¿½fen, ob die Aufgabe in der aktuellen Woche liegt
         if (isInCurrentWeek($taskDate)) {
             // Aufgabe dem richtigen Wochentag zuordnen
             foreach ($weekDays as $weekday) {
@@ -543,19 +545,19 @@
         }
     }
 
-    // Überprüfen, ob eine Aufgabe gelöscht werden soll
+    // ï¿½berprï¿½fen, ob eine Aufgabe gelï¿½scht werden soll
     if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
         $deleteIndex = (int)$_GET['delete'];
-        // Vergewissern, dass der Index gültig ist und innerhalb des Arrays existiert
+        // Vergewissern, dass der Index gï¿½ltig ist und innerhalb des Arrays existiert
         if (isset($exercises[$deleteIndex])) {
-            // Aufgabe löschen
+            // Aufgabe lï¿½schen
             array_splice($exercises, $deleteIndex, 1);
-            // Aufgaben nach dem Löschen in die Datei speichern
+            // Aufgaben nach dem Lï¿½schen in die Datei speichern
             file_put_contents($filePath, json_encode($exercises, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         }
     }
 
-    // Neue Aufgabe hinzufügen
+    // Neue Aufgabe hinzufï¿½gen
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name']) && isset($_POST['description']) && isset($_POST['deadline'])) {
         // Neue Aufgabe
         $newExercise = [
@@ -563,7 +565,7 @@
             'description' => htmlspecialchars(substr($_POST['description'], 0, 150), ENT_QUOTES, 'UTF-8'), // Begrenzung auf 150 Zeichen
             'deadline' => htmlspecialchars($_POST['deadline'], ENT_QUOTES, 'UTF-8'),
         ];
-        // Aufgabe zum Array hinzufügen
+        // Aufgabe zum Array hinzufï¿½gen
         array_push($exercises, $newExercise);
 
         // Aufgaben in die Datei speichern
@@ -633,7 +635,7 @@
         }
     }
 
-    // Formular zum Hinzufügen einer neuen Aufgabe
+    // Formular zum Hinzufï¿½gen einer neuen Aufgabe
     if ($current_page == 'exercise') {
         echo "
         <div class='form-container'>

@@ -1,27 +1,12 @@
+#!/usr/bin/env python3
 import os
-import time
+import sys
 import subprocess
 
-# Pfad zur Datei mit den Schaltbefehlen
-FILE_PATH = "/home/pi/DeskPlanner/webserver/socket.txt"
-
-# Verzeichnis mit dem 433 MHz Sendeprogramm
-SEND_DIR = "/raspberry-remote"
-
-# Globale Variable zum Speichern des letzten Zustands
-last_state = None
-
-def read_socket_file():
-    """Liest den Inhalt der socket.txt-Datei aus."""
-    try:
-        with open(FILE_PATH, "r") as file:
-            return file.read().strip()
-    except FileNotFoundError:
-        print(f"Fehler: {FILE_PATH} wurde nicht gefunden.")
-        return None
+script_dir = os.path.dirname(os.path.abspath(__file__))
+SEND_DIR = os.path.join(script_dir, 'raspberry-remote')
 
 def switch_socket(state):
-    """Schaltet die Funksteckdose ein oder aus."""
     if state == "1":
         subprocess.run(["./send", "01111", "1", "1"], cwd=SEND_DIR)
         print("Steckdose eingeschaltet.")
@@ -29,18 +14,12 @@ def switch_socket(state):
         subprocess.run(["./send", "01111", "1", "0"], cwd=SEND_DIR)
         print("Steckdose ausgeschaltet.")
     else:
-        print("Ungueltiger Befehl. Erwartet '0' oder '1'.")
+        print("Ungültiger Befehl. Erwartet '0' oder '1'.")
 
 if __name__ == "__main__":
-    print("Ueberwachung der socket.txt gestartet...")
-    while True:
-        # Inhalt der Datei lesen
-        current_state = read_socket_file()
+    if len(sys.argv) != 2:
+        print("Usage: socket.py <0|1>")
+        sys.exit(1)
 
-        # Check, ob sich der Zustand gechanged hat
-        if current_state and current_state != last_state:
-            switch_socket(current_state)
-            last_state = current_state
-
-        # Kurze Pause, um die CPU-Auslastung zu minimieren
-        time.sleep(1)
+    desired_state = sys.argv[1]
+    switch_socket(desired_state)
