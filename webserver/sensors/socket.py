@@ -6,7 +6,7 @@ import subprocess
 FILE_PATH = "/home/pi/DeskPlanner/webserver/socket.txt"
 
 # Verzeichnis mit dem 433 MHz Sendeprogramm
-SEND_DIR = "/home/pi/raspberry-remote"
+SEND_DIR = "/raspberry-remote"
 
 # Globale Variable zum Speichern des letzten Zustands
 last_state = None
