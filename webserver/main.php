@@ -1,3 +1,16 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['user']) || !isset($_SESSION['exercises_file']) || !isset($_SESSION['sensor_data_file'])) {
+    header('Location: DeskPlanner.html?error=session_expired');
+    exit;
+}
+
+// Benutzerspezifische Dateien laden
+$exercisesFile = $_SESSION['exercises_file'];
+$exercises = file_exists($exercisesFile) ? json_decode(file_get_contents($exercisesFile), true) : [];
+?>
+
 <!DOCTYPE html>
 <html lang="de">
 
@@ -515,11 +528,12 @@
     ];
 
     // Aufgaben aus Datei laden
-    $filePath = __DIR__ . '/exercises.txt';
+    $filePath = $_SESSION['exercises_file'];
+    $exercisesFile = $_SESSION['exercises_file'];
     $exercises = [];
 
     // Aufgaben aus der Datei lesen, falls sie existiert
-    if (file_exists($filePath)) {
+    if (file_exists($_SESSION['exercises_file'])) {
         $text = file_get_contents($filePath);
         $decoded = json_decode($text, true);
         if ($decoded === null && json_last_error() !== JSON_ERROR_NONE) {
@@ -545,17 +559,16 @@
         }
     }
 
-    // �berpr�fen, ob eine Aufgabe gel�scht werden soll
-    if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-        $deleteIndex = (int)$_GET['delete'];
-        // Vergewissern, dass der Index g�ltig ist und innerhalb des Arrays existiert
+    if (isset($_POST['delete'])) {
+        $deleteIndex = $_POST['delete']; // Index der zu löschenden Aufgabe
         if (isset($exercises[$deleteIndex])) {
-            // Aufgabe l�schen
             array_splice($exercises, $deleteIndex, 1);
-            // Aufgaben nach dem L�schen in die Datei speichern
-            file_put_contents($filePath, json_encode($exercises, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            
+            // Nach dem Löschen Datei aktualisieren
+            file_put_contents($exercisesFile, json_encode($exercises, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
         }
     }
+    
 
     // Neue Aufgabe hinzuf�gen
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name']) && isset($_POST['description']) && isset($_POST['deadline'])) {
