@@ -2,8 +2,8 @@
 # install.sh – sorgt dafür, dass unser DeskPlanner-Programm korrekt läuft
 
 # 1) System aktualisieren (optional, aber empfohlen)
-sudo apt-get update -y
-sudo apt-get upgrade -y
+#sudo apt-get update -y
+#sudo apt-get upgrade -y
 
 # 2) Abhängigkeiten installieren
 sudo apt-get install -y python3 python3-pip git # und ggf. weitere Tools
