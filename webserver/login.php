@@ -73,24 +73,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $exercisesFile = $baseDir . "/exercises.json";
-            $sensorDataFile = $baseDir . "/sensorData.json";
 
             if (!file_exists($exercisesFile)) {
                 file_put_contents($exercisesFile, json_encode([]));
             }
-            if (!file_exists($sensorDataFile)) {
-                $defaultSensorData = [
-                    'temperature' => null,
-                    'humidity' => null,
-                    'led' => '0',
-                    'socket' => '0'
-                ];
-                file_put_contents($sensorDataFile, json_encode($defaultSensorData));
-            }
 
             $_SESSION['user'] = $username;
             $_SESSION['exercises_file'] = $exercisesFile;
-            $_SESSION['sensor_data_file'] = $sensorDataFile;
 
             header('Location: main.php');
         } else {
