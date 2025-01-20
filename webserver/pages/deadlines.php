@@ -2,16 +2,7 @@
 // pages/deadlines.php
 // Displays tasks sorted by their 'deadline' field
 
-$exercisesFile = __DIR__ . '/../exercises.txt';
-$exercises = [];
-
-// Load tasks from JSON
-if (file_exists($exercisesFile)) {
-    $decoded = json_decode(file_get_contents($exercisesFile), true);
-    if (is_array($decoded)) {
-        $exercises = $decoded;
-    }
-}
+$exercises = readTasks();
 
 // Sort tasks by date
 usort($exercises, function ($a, $b) {

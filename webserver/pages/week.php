@@ -2,16 +2,8 @@
 // pages/week.php
 // Displays only tasks that fall into the current calendar week (Monday-Sunday)
 
-$exercisesFile = __DIR__ . '/../exercises.txt';
-$exercises = [];
-
-// Load tasks from JSON
-if (file_exists($exercisesFile)) {
-    $decoded = json_decode(file_get_contents($exercisesFile), true);
-    if (is_array($decoded)) {
-        $exercises = $decoded;
-    }
-}
+// Retrieve tasks from the user-specific JSON file
+$exercises = readTasks();
 
 // Step 1: Calculate current Monday
 $today = new DateTime();

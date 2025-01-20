@@ -4,7 +4,8 @@ import RPi.GPIO as GPIO
 
 LED_PIN = 18
 
-# GPIO initialisieren
+# Initialize GPIO
+GPIO.setwarnings(False)  # Suppress GPIO warnings
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(LED_PIN, GPIO.OUT)
 
@@ -14,15 +15,22 @@ def set_led(state):
     else:
         GPIO.output(LED_PIN, GPIO.LOW)
 
+def get_led_state():
+    return GPIO.input(LED_PIN)
+
 if __name__ == "__main__":
     try:
-        # Prüfen, ob ein Parameter übergeben wurde (z. B. "1" oder "0")
         if len(sys.argv) > 1:
             state = sys.argv[1].strip()
-            # LED entsprechend schalten
             set_led(state)
+            # Small delay to ensure the state is set before reading
+            GPIO.output(LED_PIN, GPIO.HIGH if state == "1" else GPIO.LOW)
+            print("ON" if state == "1" else "OFF")
         else:
-            print("Fehler: Kein Parameter übergeben. Aufruf z.B.: python3 LED.py 1 oder 0")
+            state = get_led_state()
+            print("ON" if state else "OFF")
+    except Exception as e:
+        print(f"Error: {e}")
     finally:
-        # GPIO-Ressourcen aufräumen
-        GPIO.cleanup()
+        # Do not clean up GPIO to maintain state
+        pass

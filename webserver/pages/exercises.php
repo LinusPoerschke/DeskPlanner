@@ -1,17 +1,8 @@
 <?php
 // pages/exercises.php
-// Displays all tasks from exercises.txt (the JSON file) in unsorted order
+// Displays all tasks from the user-specific JSON file in unsorted order
 
-$exercisesFile = __DIR__ . '/../exercises.txt';
-$exercises = [];
-
-// Load tasks from JSON
-if (file_exists($exercisesFile)) {
-    $decoded = json_decode(file_get_contents($exercisesFile), true);
-    if (is_array($decoded)) {
-        $exercises = $decoded;
-    }
-}
+$exercises = readTasks();
 ?>
 <h1>Tasks</h1>
 

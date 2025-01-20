@@ -77,9 +77,9 @@ h1 {
 }
 
 h2 {
-    font-size: 32px;
+    font-size: 24px; /* Reduced font size for better alignment */
     color: navy;
-    margin-bottom: 60px;
+    margin-bottom: 10px; /* Reduced margin for consistency */
 }
 
 /* Paragraph text */
@@ -164,12 +164,12 @@ p {
     color: #666;
 }
 
-/* Status container for temperature/humidity/LED/socket if you want a grid */
+/* Status container for temperature/humidity/LED/socket arranged with flex */
 .status-container {
     padding: 20px 40px;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: stretch; /* Ensures all children have the same height */
     gap: 30px;
     margin-top: 40px;
 }
@@ -179,13 +179,6 @@ p {
     display: flex;
     flex-direction: column;
     gap: 15px;
-}
-
-.status-left {
-    flex: 1;
-}
-
-.status-right {
     flex: 1;
 }
 
@@ -194,12 +187,23 @@ p {
 .led,
 .socket {
     background-color: #f4f4f4;
-    padding: 6px;
+    padding: 20px; /* Increased padding for consistency */
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     text-align: center;
+    flex: 1; /* Ensures all boxes have equal width and height */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centers content vertically */
 }
 
+/* Ensure all status boxes have the same height */
+.status-left > div,
+.status-right > div {
+    height: 100%;
+}
+
+/* Humidity point styling if needed */
 .humidity-point {
     width: 20px;
     height: 20px;
@@ -215,17 +219,21 @@ p {
     display: flex;
     justify-content: space-between;
     gap: 30px;
-    margin-top: -2px;
+    margin-top: 40px; /* Adjusted for better spacing */
 }
 
 .timer,
 .stopwatch {
     background-color: #f4f4f4;
-    padding: 6px;
+    padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     text-align: center;
-    width: 50%;
+    flex: 1; /* Changed from width: 100% to flex: 1 for equal sizing */
+}
+
+.timer + .stopwatch {
+    margin-left: 30px; /* Maintain gap */
 }
 
 .timer h2,
@@ -235,7 +243,7 @@ p {
 
 .timer input,
 .stopwatch p {
-    margin-top: 4px;
+    margin-top: 10px;
 }
 
 /* Popup example if needed */
@@ -268,3 +276,4 @@ p {
     background-color: red;
     color: white;
 }
+

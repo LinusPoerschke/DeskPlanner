@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 
 define('USER_FILE', __DIR__ . '/users.txt');
@@ -81,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user'] = $username;
             $_SESSION['exercises_file'] = $exercisesFile;
 
-            header('Location: main.php');
+            header('Location: index.php');
         } else {
             header('Location: DeskPlanner.html?error=3');
         }

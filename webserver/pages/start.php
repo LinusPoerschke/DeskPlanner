@@ -7,6 +7,10 @@ $ledStatus = getLEDStatus();
 // The $socketStatus is prepared in index.php after a POST
 global $socketStatus;
 ?>
+<head>
+
+    <link rel="stylesheet" href="deskplanner.css">
+</head>
 <h1>Welcome!</h1>
 
 <div class="status-container">
@@ -28,7 +32,7 @@ global $socketStatus;
         <!-- Optional LED status (if you have a script, otherwise remove) -->
         <div class="led">
             <h2>LED Status:</h2>
-            <p><strong><?= $ledStatus; ?></strong></p>
+            <p><strong><?= htmlspecialchars($ledStatus); ?></strong></p>
             <form method="POST" action="?page=start">
                 <button type="submit" name="led_on">Turn LED On</button>
                 <button type="submit" name="led_off">Turn LED Off</button>
@@ -38,7 +42,7 @@ global $socketStatus;
         <!-- Socket control -->
         <div class="socket">
             <h2>Socket Control:</h2>
-            <p>Current status: <strong><?= $socketStatus; ?></strong></p>
+            <p>Current status: <strong><?= htmlspecialchars($socketStatus); ?></strong></p>
             <form method="POST" action="?page=start">
                 <button type="submit" name="socket_on">Turn Socket On</button>
                 <button type="submit" name="socket_off">Turn Socket Off</button>
