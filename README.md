@@ -90,5 +90,4 @@ sudo apt-get install -y git
 ```bash
    chmod +x install.sh
   ./install.sh
-  sudo reboot
 ```
