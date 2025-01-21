@@ -1,185 +1,70 @@
 #!/bin/bash
-# install.sh – Ensures that our DeskPlanner program runs correctly
 
-# Exit the script if any command fails
-set -e
+# -----------------------------------------------------------------------------
+# install.sh - Script to set up the DeskPlanner project
+# -----------------------------------------------------------------------------
 
-# Function to display informational messages in green
-function echo_info {
-    echo -e "\e[32m$1\e[0m"
-}
+# 1. Dynamically determine the installation directory
+#    (If this script is located in /home/pi/DeskPlanner/, we get /home/pi/DeskPlanner as $INSTALL_DIR)
 
-# Function to display warning messages in yellow
-function echo_warn {
-    echo -e "\e[33m$1\e[0m"
-}
+INSTALL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+echo "Installation directory: $INSTALL_DIR"
 
-# Function to display error messages in red
-function echo_error {
-    echo -e "\e[31m$1\e[0m"
-}
+# 2. Very broad permissions for the whole project (read, write, execute for everyone)
+#    WARNING: chmod -R 777 is extremely permissive. Consider using more restrictive permissions.
+chmod -R 777 "$INSTALL_DIR"
 
-# 1) System Update (Optional but Recommended)
-echo_info "Do you want to update the system? (y/n)"
-read UPDATE_SYS
-if [[ "$UPDATE_SYS" =~ ^[Yy]$ ]]; then
-    echo_info "Updating system packages..."
-    sudo apt-get update -y
-    sudo apt-get upgrade -y
-else
-    echo_info "System update skipped."
-fi
+# 3. Set executable permissions for *.py scripts and the C binary "send"
+chmod +x "$INSTALL_DIR/webserver/sensors/LED.py"
+chmod +x "$INSTALL_DIR/webserver/sensors/socket.py"
+chmod +x "$INSTALL_DIR/webserver/sensors/temperature.py"
+chmod +x "$INSTALL_DIR/webserver/sensors/raspberry-remote/send"
 
-# 2) Install Dependencies
-echo_info "Installing required dependencies..."
-sudo apt-get install -y python3 python3-pip git
+# 4. Update package lists and install necessary packages (Apache, PHP, Python, etc.)
+echo "Updating package lists and installing required packages..."
+sudo apt-get update -y
+sudo apt-get install -y apache2 php libapache2-mod-php python3-dev python3-pip python3-rpi.gpio
 
-# (Optional) Install pigpio
-echo_info "Do you want to install pigpio? (y/n)"
-read INSTALL_PIGPIO
-if [[ "$INSTALL_PIGPIO" =~ ^[Yy]$ ]]; then
-    echo_info "Installing pigpio..."
-    sudo apt-get install -y pigpio python3-pigpio
-else
-    echo_info "pigpio installation skipped."
-fi
+# Upgrade pip and install Adafruit_DHT
+echo "Upgrading pip and installing Python dependencies..."
+sudo python3 -m pip install --upgrade pip setuptools wheel
+sudo pip3 install Adafruit_DHT
 
-# 3) Add Users to gpio Group
-echo_info "Adding users to gpio group..."
+# 5. Configure Apache to serve DeskPlanner from $INSTALL_DIR/webserver
+echo "Configuring Apache virtual host..."
 
-# Determine the current user
-CURRENT_USER=$(whoami)
+# Create a new Apache configuration file
+sudo bash -c "cat <<EOF > /etc/apache2/sites-available/deskplanner.conf
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot $INSTALL_DIR/webserver
 
-# Add the current user to gpio group
-sudo adduser "$CURRENT_USER" gpio
+    <Directory $INSTALL_DIR/webserver>
+        Options Indexes FollowSymLinks
+        AllowOverride None
+        Require all granted
+    </Directory>
 
-# Add the Webserver user (www-data) to gpio group
-sudo adduser www-data gpio
+    ErrorLog \${APACHE_LOG_DIR}/deskplanner_error.log
+    CustomLog \${APACHE_LOG_DIR}/deskplanner_access.log combined
+</VirtualHost>
+EOF"
 
-echo_info "Users have been added to gpio group."
+# Disable the default site and enable deskplanner.conf
+sudo a2dissite 000-default.conf
+sudo a2ensite deskplanner.conf
 
-# 4) Configure sudoers to Allow www-data to Execute send Script Without Password
-echo_info "Configuring sudoers to allow www-data to execute the send script without a password..."
+# Make sure Apache can access (read) the files
+sudo chown -R www-data:www-data "$INSTALL_DIR/webserver"
+sudo chmod -R 755 "$INSTALL_DIR/webserver"
 
-# Path to the send script
-SEND_SCRIPT_PATH="/home/pi/DeskPlanner/webserver/sensors/raspberry-remote/send"
+# Restart Apache to apply changes
+echo "Restarting Apache..."
+sudo systemctl restart apache2
 
-# Ensure the send script exists and is executable
-if [ -f "$SEND_SCRIPT_PATH" ]; then
-    sudo chmod +x "$SEND_SCRIPT_PATH"
-else
-    echo_error "Send script not found at $SEND_SCRIPT_PATH"
-    exit 1
-fi
+# 6. Add the current user to the gpio group for GPIO access (requires re-login or reboot)
+echo "Adding user '$USER' to the gpio group..."
+sudo usermod -a -G gpio "$USER"
 
-# Add sudoers rule if not already present
-if ! sudo grep -q "^www-data ALL=(ALL) NOPASSWD: $SEND_SCRIPT_PATH" /etc/sudoers; then
-    echo "www-data ALL=(ALL) NOPASSWD: $SEND_SCRIPT_PATH" | sudo tee -a /etc/sudoers
-    echo_info "Sudoers rule added for www-data to execute send script without a password."
-else
-    echo_info "Sudoers rule for www-data already exists."
-fi
-
-# 5) Set Ownership and Permissions for the Webserver Directory
-echo_info "Setting ownership and permissions for the webserver directory..."
-
-# Define the webserver directory
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-WEB_DIR="$SCRIPT_DIR/webserver"
-
-# Change owner and group to www-data:www-data recursively
-sudo chown -R www-data:www-data "$WEB_DIR"
-
-# Set directory permissions to 750 (rwxr-x---)
-sudo find "$WEB_DIR" -type d -exec chmod 750 {} \;
-
-# Set file permissions to 640 (rw-r-----)
-sudo find "$WEB_DIR" -type f -exec chmod 640 {} \;
-
-# Specifically, set execution permissions for Python scripts and send
-sudo chmod +x "$WEB_DIR/sensors/socket.py"
-sudo chmod +x "$WEB_DIR/sensors/raspberry-remote/send"
-sudo chmod +x "$WEB_DIR/sensors/LED.py"
-sudo chmod +x "$WEB_DIR/sensors/temperature.py"
-
-echo_info "Ownership and permissions for the webserver directory have been set."
-
-# 6) Set Permissions for user_data Directory
-echo_info "Setting permissions for the user_data directory..."
-
-USER_DATA_DIR="$WEB_DIR/user_data"
-
-# Ensure the user_data directory exists
-if [ ! -d "$USER_DATA_DIR" ]; then
-    sudo mkdir -p "$USER_DATA_DIR"
-    echo_info "Created user_data directory."
-fi
-
-# Set ownership and permissions
-sudo chown -R www-data:www-data "$USER_DATA_DIR"
-sudo chmod -R 750 "$USER_DATA_DIR"
-
-echo_info "Permissions for the user_data directory have been set."
-
-# 7) Create users.txt if it Doesn't Exist and Set Permissions
-echo_info "Setting up users.txt..."
-
-USERS_FILE="$WEB_DIR/users.txt"
-
-if [ ! -f "$USERS_FILE" ]; then
-    echo_info "Creating users.txt with empty content."
-    sudo bash -c "echo '' > '$USERS_FILE'"
-fi
-
-# Set ownership and permissions
-sudo chown www-data:www-data "$USERS_FILE"
-sudo chmod 660 "$USERS_FILE"
-
-echo_info "users.txt has been set up with appropriate permissions."
-
-# 8) Rename or Remove index.html to Prioritize index.php
-echo_info "Renaming/removing index.html to ensure index.php is used as the default page..."
-
-INDEX_HTML="$WEB_DIR/index.html"
-INDEX_PHP="$WEB_DIR/index.php"
-
-if [ -f "$INDEX_HTML" ]; then
-    sudo mv "$INDEX_HTML" "$WEB_DIR/index_backup.html"
-    echo_info "index.html has been renamed to index_backup.html"
-else
-    echo_info "index.html does not exist. No action needed."
-fi
-
-# 9) Ensure socket.log Exists and Is Writable
-echo_info "Setting up socket.log..."
-
-SOCKET_LOG="$WEB_DIR/sensors/socket.log"
-
-if [ ! -f "$SOCKET_LOG" ]; then
-    sudo touch "$SOCKET_LOG"
-    echo_info "Created socket.log"
-fi
-
-sudo chown www-data:www-data "$SOCKET_LOG"
-sudo chmod 660 "$SOCKET_LOG"
-
-echo_info "socket.log has been set up with appropriate permissions."
-
-# 10) Restart Webserver to Apply Changes
-echo_info "Restarting the webserver to apply changes..."
-sudo systemctl restart apache2  # Uncomment if using Apache
-# sudo systemctl restart nginx    # Uncomment if using Nginx
-
-echo_info "Webserver has been restarted."
-
-# 11) Enable and Start pigpiod Service if pigpio Was Installed
-if [[ "$INSTALL_PIGPIO" =~ ^[Yy]$ ]]; then
-    echo_info "Enabling and starting pigpiod service..."
-    sudo systemctl enable pigpiod
-    sudo systemctl start pigpiod
-    echo_info "pigpiod service has been enabled and started."
-fi
-
-# Completion Message
-echo_info "Installation completed successfully."
-echo_warn "Please log out and log back in (or reboot the Pi) for group changes to take effect."
+echo "Installation complete."
+echo "Please log out and log back in (or reboot) for the GPIO group membership to take effect."
