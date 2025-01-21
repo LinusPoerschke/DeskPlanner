@@ -63,26 +63,32 @@ sudo apt-get install -y git
 
 1. **Navigate to Your Desired Installation Directory**  
    It's common to place projects in the `/home/pi` directory. You can create a directory for projects if it doesn't exist:
-  `
+```bash
    cd /home/pi
    mkdir Projects
    cd Projects
-  `
+```
 ### 2. Clone the Repository
 
 1. **Navigate to Your Desired Installation Directory**  
    It's common to place projects in the `/home/pi` directory. You can create a directory for projects if it doesn't exist:
+   ```bash
    cd /home/pi
    mkdir Projects
    cd Projects
-   
-2. Clone the DeskPlanner Repository
+   ```   
+3. Clone the DeskPlanner Repository
+```bash
   git clone git@github.com:LinusPoerschke/DeskPlanner.git
 
-3. Navigate to the Project Directory
+4. Navigate to the Project Directory
+```bash
   cd DeskPlanner
+```
 
-4. Run the Installation Script
+5. Run the Installation Script
+```bash
    chmod +x install.sh
   ./install.sh
   sudo reboot
+```
