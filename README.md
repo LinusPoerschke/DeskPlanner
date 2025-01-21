@@ -79,7 +79,8 @@ sudo apt-get install -y git
    ```   
 3. Clone the DeskPlanner Repository
 ```bash
-  git clone git@github.com:LinusPoerschke/DeskPlanner.git
+  git clone https://github.com/LinusPoerschke/DeskPlanner.git
+
 ```
 4. Navigate to the Project Directory
 ```bash
