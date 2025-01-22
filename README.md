@@ -46,6 +46,11 @@ Before installing DeskPlanner, ensure that your Raspberry Pi setup meets the fol
 - LED
 - Breadboard
 
+## Wiring Diagram
+webserver/img/DeskPlanner_Steckplatine.jpg
+![Wiring Diagram](webserver/img/DeskPlanner_Steckplatine.jpg "Wiring Diagram")
+
+
 ### Software
 
 - Raspberry Pi OS (preferably the Lite version for headless setups)  
