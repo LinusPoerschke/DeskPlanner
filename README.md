@@ -47,14 +47,14 @@ Before installing DeskPlanner, ensure that your Raspberry Pi setup meets the fol
 - Breadboard
 
 ## Pin allocation and Wiring Diagram
-# LED
+### LED
 - Anode: Pin 12 (GPIO 18)
 - Kathode: Pin 30 (GND)
-# 433 Mhz transmitter for wireless socket
+### 433 Mhz transmitter for wireless socket
 - VCC: Pin2 (3,3 V)
 - GND: Pin 6 (GND)
 - DATA: Pin 11 (GPIO 17)
-# DHT22 temperature and moisture sensor
+### DHT22 temperature and moisture sensor
 - Plus : Pin 1 (3,3 v)
 - Minus : Pin 39 (GND)
 - out: Pin 3 (GPIO 2)
