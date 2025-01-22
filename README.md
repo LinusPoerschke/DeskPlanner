@@ -55,8 +55,8 @@ Before installing DeskPlanner, ensure that your Raspberry Pi setup meets the fol
 - GND: Pin 6 (GND)
 - DATA: Pin 11 (GPIO 17)
 # DHT22 temperature and moisture sensor
-- + : Pin 1 (3,3 v)
-- - : Pin 39 (GND)
+- Plus : Pin 1 (3,3 v)
+- Minus : Pin 39 (GND)
 - out: Pin 3 (GPIO 2)
 ![Wiring Diagram](webserver/img/DeskPlanner_Steckplatine.jpg "Wiring Diagram")
 
