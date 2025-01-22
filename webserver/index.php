@@ -9,7 +9,7 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
-// Temporäre Fehlerberichterstattung für Debugging (nicht in der Produktion verwenden)
+// Temporary error reporting for debugging 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -107,14 +107,14 @@ function getLEDStatus() {
  */
 function readTasks() {
     if (!isset($_SESSION['exercises_file'])) {
-        // Keine Aufgaben-Datei in der Sitzung gefunden
+        // No task file found in the session
         return [];
     }
 
     $exercisesFile = $_SESSION['exercises_file'];
     
     if (!file_exists($exercisesFile)) {
-        // Wenn die Datei nicht existiert, gib ein leeres Array zurück
+        // If the file does not exist, return an empty array
         return [];
     }
 
@@ -122,7 +122,7 @@ function readTasks() {
     $tasks = json_decode($jsonData, true);
 
     if (!is_array($tasks)) {
-        // Wenn JSON ungültig ist, gib ein leeres Array zurück
+        // If JSON is invalid, return an empty array
         return [];
     }
 
@@ -137,7 +137,7 @@ function readTasks() {
  */
 function writeTasks($tasks) {
     if (!isset($_SESSION['exercises_file'])) {
-        // Keine Aufgaben-Datei in der Sitzung gefunden
+        // No task file found in the session
         return false;
     }
 
