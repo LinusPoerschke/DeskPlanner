@@ -58,6 +58,8 @@ Before installing DeskPlanner, ensure that your Raspberry Pi setup meets the fol
 - Plus : Pin 1 (3,3 v)
 - Minus : Pin 39 (GND)
 - out: Pin 3 (GPIO 2)
+
+
 ![Wiring Diagram](webserver/img/DeskPlanner_Steckplatine.jpg "Wiring Diagram")
 
 
