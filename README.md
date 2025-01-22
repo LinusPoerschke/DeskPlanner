@@ -39,6 +39,13 @@ Before installing DeskPlanner, ensure that your Raspberry Pi setup meets the fol
 - Power supply for Raspberry Pi  
 - Internet connection (Ethernet or Wi-Fi)  
 - **Optional:** Sensors and actuators connected to GPIO pins (e.g., LEDs, sockets, DHT22 temperature sensor)
+- 6 x FF Jumper Wire
+- 2 x MF Jumper Wire
+- DHT22 temperature sensor
+- 433 MHz transmitter
+- 433 MHz wireless socket
+- LED
+- Breadboard
 
 ### Software
 
