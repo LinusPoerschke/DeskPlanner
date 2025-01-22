@@ -40,14 +40,24 @@ Before installing DeskPlanner, ensure that your Raspberry Pi setup meets the fol
 - Internet connection (Ethernet or Wi-Fi)  
 - 6 x FF Jumper Wire
 - 2 x MF Jumper Wire
-- DHT22 temperature sensor
+- DHT22 temperature and moisture sensor
 - 433 MHz transmitter
 - 433 MHz wireless socket
 - LED
 - Breadboard
 
-## Wiring Diagram
-webserver/img/DeskPlanner_Steckplatine.jpg
+## Pin allocation and Wiring Diagram
+# LED
+- Anode: Pin 12 (GPIO 18)
+- Kathode: Pin 30 (GND)
+# 433 Mhz transmitter for wireless socket
+- VCC: Pin2 (3,3 V)
+- GND: Pin 6 (GND)
+- DATA: Pin 11 (GPIO 17)
+# DHT22 temperature and moisture sensor
+- + : Pin 1 (3,3 v)
+- - : Pin 39 (GND)
+- out: Pin 3 (GPIO 2)
 ![Wiring Diagram](webserver/img/DeskPlanner_Steckplatine.jpg "Wiring Diagram")
 
 
