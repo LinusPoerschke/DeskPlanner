@@ -59,15 +59,18 @@ function formatTime(seconds) {
 // Fetch temperature and humidity from sensorData.php
 async function fetchSensorData() {
   try {
+    // Send HTTP-GET request to "sensorData.php"
     const response = await fetch('sensorData.php');
+    // Convert server response from JSON in JS-Object
     const data     = await response.json();
     if (data.error) {
       console.error("Error fetching sensor data:", data.error);
       return;
     }
-    // Place temperature/humidity in DOM
+    // Get HTML-elements temperature/humidity 
     const tempElem = document.getElementById('tempValue');
     const humElem  = document.getElementById('humValue');
+    // Place temperature/humidity
     if (tempElem) {
       tempElem.textContent = data.temperature.toFixed(1);
     }
