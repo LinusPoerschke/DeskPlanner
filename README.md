@@ -21,7 +21,7 @@ DeskPlanner is a web-based studying and planning tool designed specifically for 
 
 ## Features
 
-- **Web Interface:** Manage deadlines, exercises, perpherals and user data through an intuitive web interface.  
+- **Web Interface:** Manage deadlines, exercises, peripherals and user data through an intuitive web interface.  
 - **Sensor Integration:** Utilize GPIO pins to interact with LEDs, sockets, and temperature/humidity sensors.  
 - **Dynamic Configuration:** Automatically adapts to different installation directories.  
 - **Apache & PHP Integration:** Serves the web application efficiently with Apache2 and PHP support.
