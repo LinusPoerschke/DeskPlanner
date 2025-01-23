@@ -112,3 +112,12 @@ sudo apt-get install -y git
 ### 3. Navigate to the Website and register
 
 http://<your_IP>/DeskPlanner.html
+
+
+**If you have trouble with the login:** 
+Enable the users.txt
+
+```bash
+sudo chown pi:www-data /home/pi/DeskPlanner/webserver/users.txt 
+chmod 660 /home/pi/DeskPlanner/webserver/users.txt
+```
