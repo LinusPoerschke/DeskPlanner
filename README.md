@@ -109,3 +109,6 @@ sudo apt-get install -y git
    chmod +x install.sh
   ./install.sh
 ```
+### 3. Navigate to the Website and register
+
+http://<your_IP>/DeskPlanner.html
