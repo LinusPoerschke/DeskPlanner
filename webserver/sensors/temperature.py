@@ -7,7 +7,6 @@ DHT_PIN = 2
 def read_sensor_data():
     humidity, temperature = Adafruit_DHT.read_retry(DHT_SENSOR, DHT_PIN)
     if humidity is not None and temperature is not None:
-        # Einfach "Temperatur,Feuchtigkeit" ausgeben
         print(f"{temperature:.1f},{int(humidity)}")
     else:
         print("Fehler beim Lesen des DHT22-Sensors.")
